@@ -293,6 +293,150 @@ if st.button("🔮 Reveal the Magical Crop 🔮"):
 
         st.info("🌙 This divine recommendation emerges from the wisdom of machine learning alchemy. Seek counsel from earthly sages for your final harvest decisions. 🌙")
 
+        # Plot visualization section
+        st.markdown("### 📊 Explore the Mystical Data Patterns 📊")
+
+        plot_options = [
+            "🌱 Distribution of Nitrogen (N)",
+            "💎 Distribution of Phosphorus (P)",
+            "⚡ Distribution of Potassium (K)",
+            "🌡️ Distribution of Temperature",
+            "💧 Distribution of Humidity",
+            "🧪 Distribution of Soil pH",
+            "🌧️ Distribution of Rainfall",
+            "💦 Distribution of Moisture",
+            "🌬️ Distribution of Wind Speed",
+            "🏔️ Distribution of Soil Types",
+            "📈 Correlation Heatmap",
+            "📊 Boxplot: Nitrogen by Crop",
+            "📊 Boxplot: Phosphorus by Crop",
+            "📊 Boxplot: Potassium by Crop",
+            "📊 Boxplot: Temperature by Crop",
+            "📊 Boxplot: Humidity by Crop",
+            "📊 Boxplot: Soil pH by Crop",
+            "📊 Boxplot: Rainfall by Crop",
+            "📊 Boxplot: Moisture by Crop",
+            "📊 Boxplot: Wind Speed by Crop"
+        ]
+
+        selected_plot = st.selectbox(
+            "Choose a mystical visualization to behold:",
+            ["Select a plot..."] + plot_options,
+            help="Select a plot to display the hidden patterns of the data",
+            key="plot_selector"
+        )
+
+        if selected_plot != "Select a plot...":
+            st.markdown(f"#### {selected_plot}")
+
+            # Generate plot on-the-fly
+            try:
+                # Load the dataset
+                df = pd.read_csv('crop_yield_dataset.csv')
+
+                # Handle missing values
+                numerical_cols = ['N', 'P', 'K', 'Temperature', 'Humidity', 'Soil_pH', 'Wind_Speed']
+                for col in numerical_cols:
+                    if df[col].isnull().sum() > 0:
+                        df[col] = df[col].fillna(df[col].mean())
+
+                categorical_cols = ['Soil_Type', 'Crop_Type']
+                for col in categorical_cols:
+                    if df[col].isnull().sum() > 0:
+                        df[col] = df[col].fillna(df[col].mode()[0])
+
+                # Encode for visualization
+                le = LabelEncoder()
+                df['soil_type_encoded'] = le.fit_transform(df['Soil_Type'])
+
+                # Normalize for visualization
+                scaler = StandardScaler()
+                df_scaled = df.copy()
+                df_scaled[numerical_cols] = scaler.fit_transform(df_scaled[numerical_cols])
+
+                # Create the plot
+                fig, ax = plt.subplots(figsize=(10, 6))
+
+                if "Distribution of Nitrogen" in selected_plot:
+                    sns.histplot(df_scaled['N'], kde=True, ax=ax)
+                    ax.set_title('Distribution of Nitrogen (N)')
+                elif "Distribution of Phosphorus" in selected_plot:
+                    sns.histplot(df_scaled['P'], kde=True, ax=ax)
+                    ax.set_title('Distribution of Phosphorus (P)')
+                elif "Distribution of Potassium" in selected_plot:
+                    sns.histplot(df_scaled['K'], kde=True, ax=ax)
+                    ax.set_title('Distribution of Potassium (K)')
+                elif "Distribution of Temperature" in selected_plot:
+                    sns.histplot(df_scaled['Temperature'], kde=True, ax=ax)
+                    ax.set_title('Distribution of Temperature')
+                elif "Distribution of Humidity" in selected_plot:
+                    sns.histplot(df_scaled['Humidity'], kde=True, ax=ax)
+                    ax.set_title('Distribution of Humidity')
+                elif "Distribution of Soil pH" in selected_plot:
+                    sns.histplot(df_scaled['Soil_pH'], kde=True, ax=ax)
+                    ax.set_title('Distribution of Soil pH')
+                elif "Distribution of Rainfall" in selected_plot:
+                    # Rainfall not in dataset, show placeholder
+                    ax.text(0.5, 0.5, 'Rainfall data not available in current dataset', ha='center', va='center', transform=ax.transAxes)
+                    ax.set_title('Distribution of Rainfall (Data Unavailable)')
+                elif "Distribution of Moisture" in selected_plot:
+                    # Moisture not in dataset, show placeholder
+                    ax.text(0.5, 0.5, 'Moisture data not available in current dataset', ha='center', va='center', transform=ax.transAxes)
+                    ax.set_title('Distribution of Moisture (Data Unavailable)')
+                elif "Distribution of Wind Speed" in selected_plot:
+                    sns.histplot(df_scaled['Wind_Speed'], kde=True, ax=ax)
+                    ax.set_title('Distribution of Wind Speed')
+                elif "Distribution of Soil Types" in selected_plot:
+                    sns.histplot(df['soil_type_encoded'], kde=True, ax=ax)
+                    ax.set_title('Distribution of Soil Types')
+                elif "Correlation Heatmap" in selected_plot:
+                    plt.close(fig)  # Close the current figure
+                    fig, ax = plt.subplots(figsize=(12, 10))
+                    corr_matrix = df_scaled[numerical_cols + ['soil_type_encoded']].corr()
+                    sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', ax=ax)
+                    ax.set_title('Correlation Heatmap')
+                elif "Boxplot:" in selected_plot:
+                    plt.close(fig)  # Close the current figure
+                    fig, ax = plt.subplots(figsize=(12, 8))
+
+                    if "Nitrogen by Crop" in selected_plot:
+                        sns.boxplot(x='Crop_Type', y='N', data=df_scaled, ax=ax)
+                        ax.set_title('Nitrogen by Crop')
+                    elif "Phosphorus by Crop" in selected_plot:
+                        sns.boxplot(x='Crop_Type', y='P', data=df_scaled, ax=ax)
+                        ax.set_title('Phosphorus by Crop')
+                    elif "Potassium by Crop" in selected_plot:
+                        sns.boxplot(x='Crop_Type', y='K', data=df_scaled, ax=ax)
+                        ax.set_title('Potassium by Crop')
+                    elif "Temperature by Crop" in selected_plot:
+                        sns.boxplot(x='Crop_Type', y='Temperature', data=df_scaled, ax=ax)
+                        ax.set_title('Temperature by Crop')
+                    elif "Humidity by Crop" in selected_plot:
+                        sns.boxplot(x='Crop_Type', y='Humidity', data=df_scaled, ax=ax)
+                        ax.set_title('Humidity by Crop')
+                    elif "Soil pH by Crop" in selected_plot:
+                        sns.boxplot(x='Crop_Type', y='Soil_pH', data=df_scaled, ax=ax)
+                        ax.set_title('Soil pH by Crop')
+                    elif "Rainfall by Crop" in selected_plot:
+                        ax.text(0.5, 0.5, 'Rainfall data not available in current dataset', ha='center', va='center', transform=ax.transAxes)
+                        ax.set_title('Rainfall by Crop (Data Unavailable)')
+                    elif "Moisture by Crop" in selected_plot:
+                        ax.text(0.5, 0.5, 'Moisture data not available in current dataset', ha='center', va='center', transform=ax.transAxes)
+                        ax.set_title('Moisture by Crop (Data Unavailable)')
+                    elif "Wind Speed by Crop" in selected_plot:
+                        sns.boxplot(x='Crop_Type', y='Wind_Speed', data=df_scaled, ax=ax)
+                        ax.set_title('Wind Speed by Crop')
+
+                    if "by Crop" in selected_plot and "Rainfall" not in selected_plot and "Moisture" not in selected_plot:
+                        ax.tick_params(axis='x', rotation=45)
+
+                # Display the plot
+                st.pyplot(fig)
+                plt.close(fig)  # Clean up
+
+            except Exception as e:
+                st.error(f"🌑 An error occurred while generating the visualization: {str(e)} 🌑")
+
     except Exception as e:
         st.error(f"🌑 The mystical forces encountered an error: {str(e)} 🌑")
 
